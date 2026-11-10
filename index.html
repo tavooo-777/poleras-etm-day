@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poleras Frank ETM Day</title>
+<meta name="description" content="Visor 3D de las poleras de Frank para ETM Day 2026: tres colores y cuatro frases para la espalda.">
+<link rel="icon" href="assets/frank-signal-left-black.svg">
+<style>
+@font-face { font-family: Sora; src: url(assets/Sora-Variable-latin.woff2) format("woff2"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: Satoshi; src: url(assets/Satoshi-Variable.ttf); font-weight: 300 900; font-display: swap; }
+:root {
+  --orange: #de5a24; --ink: #181614; --paper: #f7f2eb; --bone: #e7dfd1;
+  --line: rgba(24, 22, 20, .14); --muted: #6b635b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; -webkit-user-select: none; user-select: none; background: #ece6dc; color: var(--ink); font-family: Satoshi, system-ui, sans-serif; }
+canvas { display: block; touch-action: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+.panel { position: fixed; background: var(--paper); border: 1px solid var(--line); }
+
+#intro { top: 16px; left: 16px; width: 330px; padding: 18px 20px 16px; }
+#intro img { height: 22px; display: block; }
+#intro h1 { font-family: Sora; font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: -.02em; margin-top: 14px; }
+#intro p { font-size: 14px; line-height: 1.45; color: var(--muted); margin-top: 8px; }
+
+#opciones { right: 16px; top: 16px; width: 300px; }
+#opciones section { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+#opciones section:last-child { border-bottom: 0; }
+#opciones h2 { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+.colores { display: flex; gap: 8px; }
+.colores button { flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: transparent; padding: 8px 10px; font-size: 14px; font-weight: 600; }
+.colores button i { width: 16px; height: 16px; border: 1px solid rgba(24,22,20,.25); flex: none; }
+.colores button.activo { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.frases { display: flex; flex-direction: column; }
+.frases button { text-align: left; border: 0; border-top: 1px solid var(--line); background: transparent; padding: 10px 2px; font-size: 14px; line-height: 1.3; display: flex; gap: 10px; }
+.frases button:first-child { border-top: 0; }
+.frases button b { font-family: Sora; font-weight: 700; width: 20px; height: 20px; flex: none; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); font-size: 12px; }
+.frases button.activo { font-weight: 700; }
+.frases button.activo b { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+
+#barra { left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; max-width: calc(100vw - 32px); overflow-x: auto; scrollbar-width: none; }
+#barra::-webkit-scrollbar { display: none; }
+#barra button { background: transparent; border: 0; border-right: 1px solid var(--line); padding: 12px 16px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+#barra button:last-child { border-right: 0; }
+#barra button.on { background: var(--ink); color: var(--paper); }
+
+#ayuda { left: 16px; bottom: 16px; padding: 10px 14px; font-size: 13px; color: var(--muted); }
+
+#carga { position: fixed; inset: 0; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 10; transition: opacity .5s; }
+#carga img { height: 30px; }
+#carga span { font-size: 14px; color: var(--muted); }
+#carga.fuera { opacity: 0; pointer-events: none; }
+
+@media (max-width: 760px) {
+  #intro { display: none; }
+  #ayuda { display: none; }
+  #opciones { left: 12px; right: 12px; top: auto; bottom: 64px; width: auto; }
+  #opciones section { padding: 10px 12px; }
+  #opciones h2 { display: none; }
+  .frases { flex-direction: row; overflow-x: auto; gap: 6px; scrollbar-width: none; }
+  .frases button, .frases button:first-child { border: 1px solid var(--line); padding: 8px 10px; white-space: nowrap; font-size: 13px; }
+  .frases button.activo { border-color: var(--ink); }
+  .colores button { padding: 7px 8px; font-size: 13px; }
+  #barra { bottom: 12px; max-width: calc(100vw - 24px); }
+  #barra button { padding: 11px 12px; font-size: 13px; }
+}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="carga"><img src="assets/frank-signal-left-black.svg" alt="Frank"><span>Cargando la polera…</span></div>
+
+<div id="intro" class="panel">
+  <img src="assets/frank-signal-left-black.svg" alt="Frank">
+  <h1>Poleras para ETM Day</h1>
+  <p>Logo de 24 cm al frente. En la espalda, una frase, un QR a tryfrank.app y el logo. Polera talla M.</p>
+</div>
+
+<div id="opciones" class="panel">
+  <section>
+    <h2>Color de la polera</h2>
+    <div class="colores" id="colores"></div>
+  </section>
+  <section>
+    <h2>Frase de la espalda</h2>
+    <div class="frases" id="frases"></div>
+  </section>
+</div>
+
+<div id="barra" class="panel">
+  <button data-vista="frente">Frente</button>
+  <button data-vista="espalda">Espalda</button>
+  <button data-vista="detalle">Detalle</button>
+  <button id="girar" class="on">Girar</button>
+</div>
+
+<div id="ayuda" class="panel">Arrastra para girar en 360°. Rueda o pellizco para acercar.</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

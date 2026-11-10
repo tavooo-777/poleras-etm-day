@@ -1,0 +1,53 @@
+{
+ "colores": [
+  {
+   "id": "blanca",
+   "nombre": "Blanca",
+   "tela": "#FFFFFF"
+  },
+  {
+   "id": "naranja",
+   "nombre": "Naranja",
+   "tela": "#DE5A24"
+  },
+  {
+   "id": "negra",
+   "nombre": "Negra",
+   "tela": "#1B1A19"
+  }
+ ],
+ "frases": [
+  {
+   "id": "1-primera-vez",
+   "texto": "Que la primera vez nunca sea la real.",
+   "alto": 0.3617
+  },
+  {
+   "id": "2-improvisar",
+   "texto": "Improvisar sale caro. Ensayar, no.",
+   "alto": 0.3799
+  },
+  {
+   "id": "3-escanea",
+   "texto": "Escanea y conoce a Frank.",
+   "alto": 0.4084
+  },
+  {
+   "id": "4-simulador",
+   "texto": "Los pilotos simulan. ¿Y tu equipo?",
+   "alto": 0.3907
+  }
+ ],
+ "frente": {
+  "ancho": 0.24,
+  "alto": 0.0498,
+  "bajo_cuello": 0.08,
+  "escote": 0.095
+ },
+ "espalda": {
+  "ancho": 0.32,
+  "bajo_cuello": 0.09,
+  "escote": 0.02
+ },
+ "url": "https://tryfrank.app"
+}
