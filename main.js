@@ -1,5 +1,5 @@
 // Visor 3D de las poleras de Frank para ETM Day 2026.
-// La persona viene de fuente/persona3d.py (Blender). Los estampados se proyectan sobre la
+// La persona viene de fuente/persona_mpfb.py (Blender + MPFB 2, polera simulada como tela). Los estampados se proyectan sobre la
 // polera con DecalGeometry, así se cambian color y frase sin regenerar el modelo.
 // Ejes: Y arriba, la persona mira hacia +Z. Unidades en metros.
 import * as THREE from 'three';
@@ -7,12 +7,13 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 const MOVIL = matchMedia('(max-width: 760px)').matches;
 
-// Costura del cuello en el modelo (persona3d.py: HPS 1,475 m; caída del cuello 6,6 cm adelante y 1,3 cm atrás)
-const CUELLO_FRENTE = 1.475 - 0.066;
-const CUELLO_ESPALDA = 1.475 - 0.013;
+// Costura del cuello en el modelo; persona.json la trae medida desde la malla final
+let CUELLO_FRENTE = 1.47;
+let CUELLO_ESPALDA = 1.51;
 // Radio aproximado del torso: un estampado de ancho w sobre la tela curva se ve, de frente, más angosto
 const R_TORSO = 0.27;
 const proyectado = (w) => 2 * R_TORSO * Math.sin(w / (2 * R_TORSO));
@@ -33,9 +34,16 @@ scene.background = new THREE.Color('#ece6dc');
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.55;
+// luz de estudio real (HDRI de Poly Haven, CC0)
+new RGBELoader().load('assets/telas/studio_small_08_1k.hdr', (hdr) => {
+  hdr.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = pmrem.fromEquirectangular(hdr).texture;
+  scene.environmentIntensity = 0.75;
+  hdr.dispose();
+});
 
-scene.add(new THREE.HemisphereLight('#fff7ee', '#b9ab98', 1.1));
-const sol = new THREE.DirectionalLight('#fff4e6', 2.2);
+scene.add(new THREE.HemisphereLight('#fff7ee', '#b9ab98', 0.45));
+const sol = new THREE.DirectionalLight('#fff4e6', 1.8);
 sol.position.set(1.6, 3.2, 2.2);
 sol.castShadow = true;
 sol.shadow.mapSize.set(2048, 2048);
@@ -84,7 +92,7 @@ const lejos = () => (camera.aspect < 0.8 ? 5.6 : 4.3);
 const VISTAS = {
   frente: () => ({ pos: new THREE.Vector3(0, 1.15, lejos()), mira: new THREE.Vector3(0, MOVIL ? 0.8 : 0.95, 0) }),
   espalda: () => ({ pos: new THREE.Vector3(0, 1.15, -lejos()), mira: new THREE.Vector3(0, MOVIL ? 0.8 : 0.95, 0) }),
-  detalle: () => ({ pos: new THREE.Vector3(0.3, 1.3, -1.55), mira: new THREE.Vector3(0, 1.16, 0) }),
+  detalle: () => ({ pos: new THREE.Vector3(0.3, 1.38, -1.6), mira: new THREE.Vector3(0, 1.24, 0) }),
 };
 let viaje = null;
 function irA(nombre, dur = 1.1) {
@@ -109,36 +117,6 @@ function textura(url) {
     }, undefined, mal)));
   }
   return cache.get(url);
-}
-
-function denim() {
-  const c = document.createElement('canvas');
-  c.width = c.height = 512;
-  const g = c.getContext('2d');
-  g.fillStyle = '#3b5679';
-  g.fillRect(0, 0, 512, 512);
-  // sarga: diagonales finas
-  for (let i = -512; i < 512; i += 4) {
-    g.strokeStyle = i % 8 === 0 ? 'rgba(255,255,255,0.07)' : 'rgba(10,20,40,0.10)';
-    g.lineWidth = 1.6;
-    g.beginPath();
-    g.moveTo(i, 512);
-    g.lineTo(i + 512, 0);
-    g.stroke();
-  }
-  // desgaste
-  const img = g.getImageData(0, 0, 512, 512);
-  for (let k = 0; k < img.data.length; k += 4) {
-    const n = (Math.random() - 0.5) * 22;
-    img.data[k] += n; img.data[k + 1] += n; img.data[k + 2] += n;
-  }
-  g.putImageData(img, 0, 0);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(5, 5);
-  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return t;
 }
 
 // ------------------------------------------------------------ persona y estampados
@@ -221,6 +199,13 @@ async function iniciar() {
   if (datos.colores.some((x) => x.id === c)) estado.color = c;
   if (datos.frases.some((x) => x.id === f)) estado.frase = f;
 
+  const medidas = await (await fetch('assets/persona.json')).json();
+  CUELLO_FRENTE = medidas.cuello_frente;
+  CUELLO_ESPALDA = medidas.cuello_espalda;
+  const punto = await textura('assets/telas/cotton_jersey_nor_gl_1k.jpg');
+  punto.colorSpace = THREE.NoColorSpace;
+  punto.wrapS = punto.wrapT = THREE.RepeatWrapping;
+  punto.repeat.set(14, 14);
   const gltf = await new GLTFLoader().loadAsync('assets/persona.glb');
   const persona = gltf.scene;
   persona.traverse((o) => {
@@ -228,16 +213,22 @@ async function iniciar() {
     o.castShadow = true;
     o.receiveShadow = true;
     const n = o.material.name;
+    // MPFB exporta todo como transparente: lo opaco va opaco y el pelo con recorte, si no se ordena mal
+    const pelo = /short02|eyebrow|eyelash|high-poly/.test(n);
+    o.material.transparent = false;
+    o.material.depthWrite = true;
+    o.material.alphaTest = pelo ? 0.45 : 0;
+    if (!pelo) o.material.opacity = 1;
+    if (pelo) { o.castShadow = false; o.material.side = THREE.DoubleSide; }
     if (n === 'polera') {
       polera = o;
+      // punto de algodón (Cotton Jersey de Poly Haven, CC0)
+      o.material.normalMap = punto;
+      o.material.normalScale.set(0.6, 0.6);
       o.material.roughness = 0.95;
       o.material.side = THREE.DoubleSide;
     }
-    if (n === 'jeans') {
-      o.material.map = denim();
-      o.material.color.set('#ffffff');
-      o.material.side = THREE.DoubleSide;
-    }
+    if (n === 'jeans') o.material.side = THREE.DoubleSide;
   });
   scene.add(persona);
   persona.updateMatrixWorld(true);

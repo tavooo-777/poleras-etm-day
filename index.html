@@ -46,7 +46,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #barra button:last-child { border-right: 0; }
 #barra button.on { background: var(--ink); color: var(--paper); }
 
-#ayuda { left: 16px; bottom: 16px; padding: 10px 14px; font-size: 13px; color: var(--muted); }
+#ayuda { left: 16px; bottom: 16px; max-width: 300px; padding: 10px 14px; font-size: 13px; color: var(--muted); }
+#ayuda small { display: block; margin-top: 6px; font-size: 11px; line-height: 1.35; }
 
 #carga { position: fixed; inset: 0; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 10; transition: opacity .5s; }
 #carga img { height: 30px; }
@@ -101,7 +102,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   <button id="girar" class="on">Girar</button>
 </div>
 
-<div id="ayuda" class="panel">Arrastra para girar en 360°. Rueda o pellizco para acercar.</div>
+<div id="ayuda" class="panel">Arrastra para girar en 360°. Rueda o pellizco para acercar.<small>Persona hecha con MPFB 2 (MakeHuman, CC0). Jeans y zapatillas de punkduck, CC-BY. Tela y luz de Poly Haven, CC0.</small></div>
 
 <script type="module" src="main.js"></script>
 </body>
