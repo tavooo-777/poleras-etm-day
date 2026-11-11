@@ -20,32 +20,32 @@
   {
    "id": "1-primera-vez",
    "texto": "Que la primera vez nunca sea la real.",
-   "alto": 0.3617
+   "alto": 0.2939
   },
   {
    "id": "2-improvisar",
    "texto": "Improvisar sale caro. Ensayar, no.",
-   "alto": 0.3799
+   "alto": 0.3087
   },
   {
    "id": "3-escanea",
    "texto": "Escanea y conoce a Frank.",
-   "alto": 0.4084
+   "alto": 0.3318
   },
   {
    "id": "4-simulador",
    "texto": "Los pilotos simulan. ¿Y tu equipo?",
-   "alto": 0.3907
+   "alto": 0.3174
   }
  ],
  "frente": {
-  "ancho": 0.24,
-  "alto": 0.0498,
+  "ancho": 0.13,
+  "alto": 0.027,
   "bajo_cuello": 0.08,
   "escote": 0.095
  },
  "espalda": {
-  "ancho": 0.32,
+  "ancho": 0.26,
   "bajo_cuello": 0.09,
   "escote": 0.02
  },
