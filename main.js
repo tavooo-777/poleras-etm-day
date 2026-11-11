@@ -18,7 +18,7 @@ let CUELLO_ESPALDA = 1.51;
 const R_TORSO = 0.27;
 const proyectado = (w) => 2 * R_TORSO * Math.sin(w / (2 * R_TORSO));
 // La tela en pantalla: blanco algo apagado para que se vea el volumen
-const TELA = { blanca: '#f2f1ee', naranja: '#de5a24', negra: '#1d1c1b' };
+const TELA = { blanca: '#f2f1ee', negra: '#1d1c1b' };
 
 // ------------------------------------------------------------ escena
 const renderer = new THREE.WebGLRenderer({ antialias: true });
